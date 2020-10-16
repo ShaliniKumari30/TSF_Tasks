@@ -1,0 +1,104 @@
+---
+title: 'Task 3 : Prediction Using Unsupervised ML'
+author: "Shalini Kumari"
+date: "16/10/2020"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## K - Means Clustering
+
+In this task , we are predicting optimum number of clusters of 'Iris' Dataset and representing it visually . I have used K- Means Clustering algorithm in this task . 
+
+
+# Importing Libraries 
+
+```{r warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+
+```
+# Importing Dataset 
+
+Here we will import "Iris" dataset and view it's structure and summary . 
+
+```{r}
+Iris <- read.csv("Iris.csv")
+Iris
+str(Iris)
+summary(Iris)
+head(Iris)
+```
+
+# PreProcessing the Data
+
+Since clustering is a type of Unsupervised Learning, we would not require Class Label(output) during execution of our algorithm. We will, therefore, remove Class Attribute “Species” and store it in another variable. We would then normalize the attributes between 0 and 1 using our own function.
+
+```{r}
+iris.new<- Iris[,c(1,2,3,4)]
+iris.class<- Iris[,"Species"]
+head(iris.new)
+head(iris.class)
+
+```
+
+# Optimum Number of Clusters 
+
+We will use Elbow method to find Optimum number of clusters . 
+
+```{r}
+set.seed(6)
+wcss <- vector()
+for(i in 1:10)
+  wcss[i] <- sum(kmeans(iris.new , i)$withinss)
+plot(1:10 , wcss , type = "b" , main = paste('Clusters of Iris') , xlab = "Number of clusters" , ylab = "WCSS")
+```
+
+As we can see from graph that there is 3 clusters before elbow . Now applying K - means clustering algorithm .
+
+# Applying K- Means Clustering 
+
+```{r}
+result<- kmeans(iris.new,3) 
+result$size 
+
+result$centers
+
+result$cluster
+
+```
+
+# Verification 
+
+```{r}
+par(mfrow=c(2,2), mar=c(5,4,2,2))
+plot(iris.new[c(1,2)], col=result$cluster)
+# Plot to see how Sepal.Length and Sepal.Width data points have been distributed in clusters
+plot(iris.new[c(1,2)], col=iris.class)
+# Plot to see how Sepal.Length and Sepal.Width data points have been distributed originally as per "class" attribute in dataset
+plot(iris.new[c(3,4)], col=result$cluster)
+# Plot to see how Petal.Length and Petal.Width data points have been distributed in clusters
+plot(iris.new[c(3,4)], col=iris.class)
+
+```
+
+# Visualizing result in Table 
+
+```{r}
+table(result$cluster,iris.class)
+
+```
+
+From the table we can see most of the observations have been clustered correctly however, 2 of the versicolor have been put in the cluster with all the virginica and 14 of the verginica have been put in cluster 1 which mostly has versicolor.
+
+# Visualizing the Results Graphically
+
+```{r}
+library(cluster)
+clusplot(iris.new , result$cluster, lines = 0 , shade = TRUE , color = TRUE , labels = 2 , plotchar = FALSE, span = TRUE ,  main = paste('Number of Clusters'), xlab = "Species") 
+```
